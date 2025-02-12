@@ -15,12 +15,11 @@ to navigate interface.
 
 
 # Functional Requirements
-    User Authentication - Login page for user accounts
-    Searching feature for different places to stay
-    Each user should have a profile and be able to edit
-    WorkFlow - defines how we complete tasks
-    Intergration - Allows us to connect to other systems
-
+    Home Page - main landing page for user
+    Login Page - Login page for user accounts
+    Searching - feature for different places to stay
+    Profile page- Each user should have a profile and be able to edit
+    Payment Page - Allows users to make payments
     
 
 # Non-Functional Requirements
