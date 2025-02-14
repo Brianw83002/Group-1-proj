@@ -48,11 +48,37 @@ to navigate interface.
 
 # Non-Functional Requirements
 
-    Security   - The data of the user should be encrypted for   security Should be able to support multiple languagesPrevents leaking User information
-    Scalablity - avalible for different region  
-    Sustainable - It should be up and available 98% of the time
-    Usability -  Take no longer than 5 seconds to login
-    Maintainable - Have helpful error messages
+    Security   
+    ID: NFR1
+    Name: Security
+    Description: The data of the user should be encrypted for security
+    Primary actor: Developer 1
+
+    Scalablity
+    ID: NFR2
+    Name: Scalablity
+    Description: available for different regions
+    Primary actor: Developer 1
+
+    
+    Sustainable 
+    ID: NFR3
+    Name: Sustainable
+    Description: It should be up and available 98% of the time
+    Primary actor: Developer 1
+    
+    Usability 
+    ID: NFR4
+    Name: Usability
+    Description: Take no longer than 5 seconds to login
+    Primary actor: Developer 1
+
+    Maintainable
+    ID: NFR5
+    Name: Maintainable
+    Description: Have helpful error messages
+    Primary actor: Developer 1
+
 
     ![CaseDiagram drawio](https://github.com/user-attachments/assets/70707a67-47cf-40dd-87c6-7ed707ca5200)
 
