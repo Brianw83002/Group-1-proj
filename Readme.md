@@ -25,8 +25,7 @@ to navigate interface.
 # Non-Functional Requirements
 
     Security   - The data of the user should be encrypted for   security Should be able to support multiple languagesPrevents leaking User information
-    Scalablity - avalible for different region
-    Filters feature to be able to sort through the customers pricing range or number of rooms etc
-    Sustainable- It should be up and available 98% of the time
-    It should run on windows and mac
-    Maintainable- Have helpful error messages
+    Scalablity - avalible for different region  
+    Sustainable - It should be up and available 98% of the time
+    Usability -  Take no longer than 5 seconds to login
+    Maintainable - Have helpful error messages
