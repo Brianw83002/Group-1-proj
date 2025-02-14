@@ -1,4 +1,4 @@
-
+![Airhome_pic](AIRHOME.png)
 # AIRBNB group 1 project
 
 ## Project Vision:
@@ -80,5 +80,4 @@ to navigate interface.
     Primary actor: Developer 1
 
 
-    ![CaseDiagram drawio](https://github.com/user-attachments/assets/70707a67-47cf-40dd-87c6-7ed707ca5200)
-
+![CaseDiagram drawio](https://github.com/user-attachments/assets/70707a67-47cf-40dd-87c6-7ed707ca5200)
