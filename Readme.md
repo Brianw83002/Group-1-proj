@@ -1,4 +1,4 @@
-![Airhome_pic](AIRHOME.png)
+<img src="AIRHOME.png" width="200" height="200">
 # AIRBNB group 1 project
 
 ## Project Vision:
@@ -79,5 +79,4 @@ to navigate interface.
     Description: Have helpful error messages
     Primary actor: Developer 1
 
-
-![CaseDiagram drawio](CaseDiagram.drawio.png)
+<img src="CaseDiagram.drawio.png" width="800" height="500">
