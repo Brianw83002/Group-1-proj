@@ -54,5 +54,5 @@ to navigate interface.
     Usability -  Take no longer than 5 seconds to login
     Maintainable - Have helpful error messages
 
-    ![image](https://github.com/user-attachments/assets/6a3eb643-425b-4a07-a1af-4eeb7751c931)
+    ![CaseDiagram drawio](https://github.com/user-attachments/assets/70707a67-47cf-40dd-87c6-7ed707ca5200)
 
