@@ -53,3 +53,6 @@ to navigate interface.
     Sustainable - It should be up and available 98% of the time
     Usability -  Take no longer than 5 seconds to login
     Maintainable - Have helpful error messages
+
+    ![image](https://github.com/user-attachments/assets/6a3eb643-425b-4a07-a1af-4eeb7751c931)
+
