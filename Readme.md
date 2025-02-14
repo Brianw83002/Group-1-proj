@@ -40,7 +40,7 @@ to navigate interface.
     Description: A page that shows the profile of the user
     Primary actor: Developer 1
 
-    Payment Page - Allows users to make payments
+    Payment Page 
     ID: FR5
     Name: Payment Page
     Description: A page that allows users to make payments
