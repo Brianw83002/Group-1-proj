@@ -15,12 +15,36 @@ to navigate interface.
 
 
 # Functional Requirements
-    Home Page - main landing page for user
-    Login Page - Login page for user accounts
-    Searching - feature for different places to stay
-    Profile page- Each user should have a profile and be able to edit
-    Payment Page - Allows users to make payments
+    Home Page 
+    ID: FR1
+    Name: Homepage
+    Description: The main landing page for the user
+    Primary actor: Developer 1
+
+    Login Page 
+    ID: FR2
+    Name: Login Page
+    Description: A page that allows users to login
+    Primary actor: Developer 1
+
+    Searching
+    ID: FR3
+    Name: Searching feature
+    Description: Ability to search for different places to stay
+    Primary actor: Developer 1
+
     
+    Profile page
+    ID: FR4
+    Name: Profile Page
+    Description: A page that shows the profile of the user
+    Primary actor: Developer 1
+
+    Payment Page - Allows users to make payments
+    ID: FR5
+    Name: Payment Page
+    Description: A page that allows users to make payments
+    Primary actor: Developer 1
 
 # Non-Functional Requirements
 
