@@ -23,6 +23,7 @@ h1 img {
 h2 p {
     text-align: center;
     margin-left: 1.5rem;
+    margin-right: 1.5em;
     background-color: solid black;
 }
 
@@ -42,3 +43,16 @@ p{
     text-decoration: underline;
 }
 
+h3 {
+    font-size: 2em;
+    text-decoration: underline;
+    text-align: center;
+}
+
+p{
+    text-align: left;
+    font-size: 1.2em;
+    margin-left: 5em;
+    margin-right: 5em;
+    text-decoration: none;
+}
