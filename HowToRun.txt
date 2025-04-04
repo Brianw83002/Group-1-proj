@@ -1,0 +1,26 @@
+To run you need python or python3
+
+install pip using the command: "python get-pip.py"  or  "python3 get-pip.py"
+
+once installed use the command: "pip install Flask" or "pip3 install Flask"
+
+run it by using:  "python index.py"   or   "python3 index.py" 
+
+
+it will output this:
+ * Serving Flask app 'index'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 425-279-667
+
+copy the link it gives you, in the example above it is "http://127.0.0.1:5000"
+
+copy and paste into a browser
+
+to stop the process press ctrl+C 
+
+
