@@ -23,36 +23,13 @@ h1 img {
 h2 p {
     text-align: center;
     margin-left: 1.5rem;
-    margin-right: 1.5em;
     background-color: solid black;
-}
+}   
 
-.columns {
-    
-    columns: 3;
-}
-
-.columns p {
-    margin-top: 0;
-}
-
-p{
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-h3 {
-    font-size: 2em;
-    text-decoration: underline;
+div {
     text-align: center;
 }
 
-p{
-    text-align: left;
-    font-size: 1.2em;
-    margin-left: 5em;
-    margin-right: 5em;
-    text-decoration: none;
+p {
+    text-align: center;
 }

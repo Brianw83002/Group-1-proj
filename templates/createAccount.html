@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/airhome-empty.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/createAccount.css') }}">
+    <title>AirHome Create Account</title>
+</head>
+
+<body>  
+    <!-- Icon has link to homepage -->
+    <h1>
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        </a>
+    </h1>   
+
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Create Account Form -->
+    <form method="POST" action="{{ url_for('createAccount') }}">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password :</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="confirmpassword">Confirm Password :</label>
+            <input type="password" id="confirmpassword" name="confirmpassword" required>
+        </div>
+        <div>
+            <button type="submit">Create Account</button>
+        </div>
+    </form>
+
+</body>
+</html>

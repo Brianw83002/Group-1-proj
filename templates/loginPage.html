@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/airhome-empty.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loginpage.css') }}">
+    <title>AirHome Login</title>
+</head>
+
+<body>  
+    <!-- Icon has link to homepage -->
+    <h1>
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        </a>
+    </h1>   
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+        <!-- Login Form -->
+    <form method="POST" action="{{ url_for('login') }}">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password :</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <button type="submit">Login</button>
+        </div>
+    </form>
+
+    <p>
+        Dont Have an Account?
+        <a href="{{ url_for('createAccount') }}">
+            <button type="button">Create Account</button>
+        </a>  
+    </p>
+</body>
+</html>

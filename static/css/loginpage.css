@@ -1,0 +1,35 @@
+body{
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+    border-right: 50px solid rgb(0, 0, 158);
+    border-left:  50px solid rgb(0, 0, 158);
+    min-height: 100vw;
+}
+
+h1 {
+    margin-top: 0;
+    padding: 0;
+    text-align: center;
+}
+h1 img {
+    margin: 0;
+    padding: 0;
+    width : 10em;
+    height: auto;     
+}
+
+h2 p {
+    text-align: center;
+    margin-left: 1.5rem;
+    background-color: solid black;
+}   
+
+div {
+    text-align: center;
+}
+
+p {
+    text-align: center;
+}
