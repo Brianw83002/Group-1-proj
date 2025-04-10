@@ -4,6 +4,7 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' #for flash messages
 
+#connets to users.db
 def get_db_connection():
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row  # Allows us to access columns by name (e.g., row['username'])
@@ -26,7 +27,8 @@ def login():
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
-
+        
+        #checkes if the entered password is correct password
         if user and user['password'] == password:
             return redirect(url_for('user', username=username))
         else:
