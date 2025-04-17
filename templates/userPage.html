@@ -16,12 +16,35 @@
         </a>
     </h1>   
 
-<h2>
-    <a href="{{ url_for('cart') }}">
-    <img src="{{ url_for('static', filename='images/cart.png') }}" alt="cart">
-
-</h2>
-
     <p>Hello, {{ username }}!</p>
+    
+<!-- 2 icons on screen -->
+<div class="columns">
+    <div class="icon">
+        <a href="{{ url_for('createListing') }}">
+            <img src="{{ url_for('static', filename='images/createListing.png') }}" alt="listing">
+        </a>
+        <p>Create Listing</p>
+
+    </div>
+
+    <div class="icon-search">
+        <a href="{{ url_for('search') }}">
+            <img src="{{ url_for('static', filename='images/search.png') }}" alt="search">
+        </a>
+        <p>Search</p>
+    </div>
+
+    <div class="icon">
+        <a href="{{ url_for('cart') }}">
+            <img src="{{ url_for('static', filename='images/cart.png') }}" alt="cart">
+        </a>
+        <p>Go to Cart</p>
+    </div>
+
+
+    
+</div>
+
 </body>
 </html>

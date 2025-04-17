@@ -9,15 +9,40 @@
 </head>
 
 <body>  
+    <!-- Icon has link to homepage -->
     <h1>
-        <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
-    </h1>   
-    <h2 class="columns">
-        <!-- Updated link to use 'url_for' for the home page -->
-        <p><a href="{{ url_for('home') }}">Home</a></p>
-    </h2>
-    <p>
-        Search page
-    </p>
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        </a>
+    </h1>  
+
+    <p>Search page</p>
+    
+        <a href="{{ url_for('user') }}">
+            <p>Go Back </p>
+        </a>
+    
+
+
+
+    {% for item in listings %}
+    <div style="display: flex; align-items: center; margin-bottom: 30px;">
+        <!-- Image -->
+        <div style="flex-shrink: 0; margin: 0 40px 0 5em;">
+            {% if item['image_path'] %}
+                <img src="{{ url_for('uploaded_file', filename=item['image_path'].split('/')[-1]) }}" width="300">
+            {% else %}
+                <p>No image available.</p>
+            {% endif %}
+        </div>
+    
+        <!-- Text Info -->
+        <div>
+            <p><strong>Address:</strong> {{ item['address'] }}</p>
+            <p><strong>Owner:</strong> {{ item['owner'] }}</p>
+        </div>
+    </div>
+    {% endfor %}
+
 </body>
 </html>

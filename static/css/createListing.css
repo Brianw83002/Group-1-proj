@@ -22,7 +22,6 @@ h1 img {
 
 
 .columns {
-    columns: 3;
     display: flex;
     justify-content: space-between;
     align-self: center;
@@ -36,16 +35,6 @@ h1 img {
     width: 10em; /* adjust size as needed */
     cursor: pointer;
 }
-.icon-search img{
-    width: 18em; /* adjust size as needed */
-    height: auto;
-    cursor: pointer;
-}
-.icon-search p {
-    margin: 0.3em 0 0;
-    font-size: 2em;
-    color: #333;
-}
 .icon p {
     margin: 0.3em 0 0;
     font-size: 2em;
@@ -57,15 +46,6 @@ h1 img {
 }
 
 
-
-
-
-
-
-
-
-
-
 h2 p {
     text-align: center;
     margin-left: 1.5rem;
@@ -73,7 +53,13 @@ h2 p {
     background-color: solid black;
 }
 
+.columns {
+    columns: 2;
+}
 
+.columns p {
+    margin-top: 0;
+}
 
 p{
     text-align: center;
