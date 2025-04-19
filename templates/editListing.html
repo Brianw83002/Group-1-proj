@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/airhome-empty.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/editListing.css') }}">
+    <title>AirHome Home</title>
+</head>
+
+<body> 
+    <!-- Home icon and greeting -->
+    <h1>
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        </a>
+        <p>Hello, {{ username }}!</p>
+    </h1> 
+    
+    <!-- Go Back Button -->  
+    <h2>
+        <a href="{{ url_for('user') }}">
+            <p>Go Back</p>
+        </a>
+    </h2>
+
+    {% for item in listings %}
+    <div style="display: flex; align-items: center; margin-bottom: 30px;">
+        <!-- Image -->
+        <div style="flex-shrink: 0; margin: 0 40px 0 5em;">
+            {% if item['image_path'] %}
+                <img src="{{ url_for('uploaded_file', filename=item['image_path'].split('/')[-1]) }}" width="300">
+            {% else %}
+                <p>No image available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Info and Controls -->
+        <div>
+            <!-- Display Mode -->
+            <div id="display-{{ item['id'] }}">
+                <p><strong>Address:</strong> {{ item['address'] }}</p>
+                <p><strong>Price:</strong> {{ item['price'] }}</p>
+                <button onclick="toggleEdit({{ item['id'] or 0 }})">Edit Listing</button>
+                <form action="{{ url_for('delete_listing') }}" method="POST" style="display:inline;" onsubmit="return confirmDelete();">
+                    <input type="hidden" name="id" value="{{ item['id'] }}">
+                    <button type="submit" style="margin-left: 10px; background-color: #e74c3c; color: white;">Remove Listing</button>
+                </form>
+            </div>
+
+            <!-- Edit Form -->
+            <form id="edit-form-{{ item['id'] }}" action="{{ url_for('update_listing') }}" method="POST" style="display: none; margin-top: 1em;">
+                <input type="hidden" name="id" value="{{ item['id'] }}">
+                
+                <label>Address:</label><br>
+                <input type="text" name="address" value="{{ item['address'] }}"><br><br>
+
+                <label>Price:</label><br>
+                <input type="text" name="price" value="{{ item['price'] }}"><br><br>
+
+                <button type="submit">Save Changes</button>
+                <button type="button" onclick="cancelEdit({{ item['id'] or 0 }})">Cancel</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p style="text-align: center;">You have no listings yet.</p>
+    {% endfor %}
+
+    <!-- JavaScript to handle editing and confirmation -->
+    <script>
+        function toggleEdit(id) {
+            document.getElementById(`display-${id}`).style.display = "none";
+            document.getElementById(`edit-form-${id}`).style.display = "block";
+        }
+
+        function cancelEdit(id) {
+            document.getElementById(`edit-form-${id}`).style.display = "none";
+            document.getElementById(`display-${id}`).style.display = "block";
+        }
+
+        function confirmDelete() {
+            return confirm("Are you sure you want to remove this listing?");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/airhome-empty.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/aboutUs.css') }}">
+    <title>AirHome Home</title>
+</head>
+
+<body>  
+    <h1>
+        <a href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        </a>
+    </h1>   
+    <h3>About Us</h3>
+    <h4>Authors: 
+        <p>
+            Leiss Amini,
+            Eduardo Melendez,
+            Chris Saran,
+            Linh Tran,
+            Brian Williams
+        </p>
+    </h4>
+
+    <p>
+        For tourists who are looking to rent a place to stay during a vacation 
+        or event. AirHome is an application that allows users to find 
+        suitable housing based on trip requirements such as pricing, 
+        distance from a specified address, & housing conditions by 
+        offering a list of recommended homes. Unlike other vacation 
+        rental applications that charge overpriced fees, our service 
+        is affordable with flexible rates and an easy-to-navigate interface.
+    </p>
+
+    <h2 class="columns">
+        <!-- Updated links to use 'url_for' with correct routes -->
+        <p><a href="{{ url_for('home') }}">Go Back</a></p>
+    </h2>
+</body>
+</html>

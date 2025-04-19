@@ -15,16 +15,22 @@
             <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
         </a>
     </h1>  
-
-    <p>Search page</p>
-    
-        <a href="{{ url_for('user') }}">
+    <!-- Go Back Button -->
+    <a href="{{ url_for('user') }}">
             <p>Go Back </p>
-        </a>
+    </a>
     
+    <form action="{{ url_for('search') }}" method="GET" style="text-align: center; margin-bottom: 2em;">
+        <label for="sort">Sort by Price:</label>
+        <select name="sort" id="sort" onchange="this.form.submit()">
+            <option value="">-- Select --</option>
+            <option value="asc" {% if request.args.get('sort') == 'asc' %}selected{% endif %}>Low to High</option>
+            <option value="desc" {% if request.args.get('sort') == 'desc' %}selected{% endif %}>High to Low</option>
+        </select>
+    </form>
 
 
-
+    <!-- Displays the listings -->
     {% for item in listings %}
     <div style="display: flex; align-items: center; margin-bottom: 30px;">
         <!-- Image -->
@@ -40,6 +46,7 @@
         <div>
             <p><strong>Address:</strong> {{ item['address'] }}</p>
             <p><strong>Owner:</strong> {{ item['owner'] }}</p>
+            <p><strong>Price:</strong> {{ item['price'] }}</p>
         </div>
     </div>
     {% endfor %}

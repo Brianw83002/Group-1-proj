@@ -13,36 +13,36 @@ h1 {
     padding: 0;
     text-align: center;
 }
-h1 img {
-    margin: 0;
-    padding: 0;
-    width : 10em;
-    height: auto;     
-}
+    h1 img {
+        margin: 0;
+        padding: 0;
+        width : 10em;
+        height: auto;     
+    }
+        h1 p { 
+        text-align: center;
+        font-size: 1.2rem;
+        margin-left: 10em;
+        margin-right: 10em;
+        font-weight: bold;
+        text-decoration: none;
+    }
 
 h2 p {
-    text-align: center;
-    margin-left: 1.5rem;
+    text-align: left;
+    margin-left: 1.5em;
     margin-right: 1.5em;
     background-color: solid black;
+    font-size: 1em;
 }
 
 .columns {
     columns: 2;
 }
+    .columns p {
+        margin-top: 0;
+    }
 
-.columns p {
-    margin-top: 0;
-}
-
-p {
-    text-align: left;
-    font-size: 1.2em;
-    margin-left: 10em;
-    margin-right: 10em;
-    font-weight: bold;
-    text-decoration: none;
-}
 
 h3 {
     font-size: 2em;
@@ -55,10 +55,9 @@ h4 {
     text-align: center;
     font-size: 2em;
 }
-
-h4 p{
-    text-align: center;
-    font-size: 1rem;
-}
+    h4 p{
+        text-align: center;
+        font-size: 1rem;
+    }
 
 

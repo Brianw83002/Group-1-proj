@@ -18,27 +18,37 @@
 
     <p>Hello, {{ username }}!</p>
     
+    <!-- Go Back Button-->
     <a href="{{ url_for('user') }}">
         <p>Go Back </p>
     </a>
 
+    
     <!-- Listing Form -->
-<form action="{{ url_for('createListing') }}" method="POST" enctype="multipart/form-data" style="text-align:center; margin-top: 2em;">
-    <div>
-        <label for="image">Upload Image:</label><br>
-        <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-    </div><br>
+    <p> Allowed: File types: png, jpg, jpeg, gif</p>
+    <form action="{{ url_for('createListing') }}" method="POST" enctype="multipart/form-data" style="text-align:center; margin-top: 2em;">
+        <div>
+            <label for="image">Upload Image:</label><br>
+            <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+        </div><br>
 
     <!-- Image Preview -->
     <div>
         <img id="preview" src="#" alt="Image Preview" style="display: none; max-width: 300px; margin: 1em auto;">
     </div>
 
+    <!-- text entry box for Address -->
     <div>
         <label for="address">Address:</label><br>
         <input type="text" id="address" name="address" required style="width: 300px; padding: 0.5em;">
     </div><br>
+    <!-- text entry box for Price -->
+    <div>
+        <label for="price">Price:</label><br>
+        <input type="text" id="price" name="price" required style="width: 300px; padding: 0.5em;">
+    </div><br>
 
+    <!-- submit button -->
     <button type="submit">Submit Listing</button>
 </form>
 
@@ -54,7 +64,7 @@
 {% endwith %}
 
 
-<!-- Image Preview -->
+<!-- Image Preview Script-->
 <script>
     function previewImage(event) {
         const preview = document.getElementById('preview');
