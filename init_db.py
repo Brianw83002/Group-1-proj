@@ -16,6 +16,12 @@ c.execute('''CREATE TABLE IF NOT EXISTS images (
                 address TEXT NOT NULL,
                 owner TEXT NOT NULL)''')
 
+# Add the new price column if it doesn't already exist
+try:
+    c.execute('ALTER TABLE images ADD COLUMN price TEXT NOT NULL DEFAULT "0"')
+except sqlite3.OperationalError:
+    print("Column 'price' already exists or there was an error.")
+
 # Commit changes and close connection
 conn.commit()
 conn.close()
