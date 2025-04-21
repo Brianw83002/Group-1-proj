@@ -24,6 +24,19 @@
         </a>
     </h2>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul style="color: green; font-weight: bold; text-align: center; list-style: none; padding: 0;">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
+    <!-- Display Listing Loop -->
     {% for item in listings %}
     <div style="display: flex; align-items: center; margin-bottom: 30px;">
         <!-- Image -->
@@ -40,7 +53,7 @@
             <!-- Display Mode -->
             <div id="display-{{ item['id'] }}">
                 <p><strong>Address:</strong> {{ item['address'] }}</p>
-                <p><strong>Price:</strong> {{ item['price'] }}</p>
+                <p><strong>Price Per Day: $</strong> {{ item['price'] }}</p>
                 <button onclick="toggleEdit({{ item['id'] or 0 }})">Edit Listing</button>
                 <form action="{{ url_for('delete_listing') }}" method="POST" style="display:inline;" onsubmit="return confirmDelete();">
                     <input type="hidden" name="id" value="{{ item['id'] }}">

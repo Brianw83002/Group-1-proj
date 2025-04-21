@@ -9,21 +9,44 @@ c.execute('''CREATE TABLE IF NOT EXISTS users (
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL)''')
 
-# Create table for listings with file path
-c.execute('''CREATE TABLE IF NOT EXISTS images (
+# Create a userupload table
+c.execute('''CREATE TABLE IF NOT EXISTS user_uploads (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 image_path TEXT NOT NULL,
                 address TEXT NOT NULL,
-                owner TEXT NOT NULL)''')
+                owner TEXT NOT NULL,
+                price REAL NOT NULL DEFAULT 0.0)''')
 
-# Add the new price column if it doesn't already exist
+# Create cart table
+c.execute('''CREATE TABLE IF NOT EXISTS cart (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                image_id INTEGER NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username),
+                FOREIGN KEY (image_id) REFERENCES images(id))''')
+
 try:
-    c.execute('ALTER TABLE images ADD COLUMN price TEXT NOT NULL DEFAULT "0"')
+    c.execute("ALTER TABLE cart ADD COLUMN start_date TEXT")
 except sqlite3.OperationalError:
-    print("Column 'price' already exists or there was an error.")
+    print("start_date column already exists.")
+try:
+    c.execute("ALTER TABLE cart ADD COLUMN end_date TEXT")
+except sqlite3.OperationalError:
+    print("end_date column already exists.")
+
+# Add this to your DB setup script
+c.execute('''
+    CREATE TABLE IF NOT EXISTS unavailable_dates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        upload_id INTEGER NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        FOREIGN KEY (upload_id) REFERENCES user_uploads(id)
+    )
+''')
 
 # Commit changes and close connection
-conn.commit()
+conn.commit()   
 conn.close()
 
 print("Database setup complete!")

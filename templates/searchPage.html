@@ -20,6 +20,18 @@
             <p>Go Back </p>
     </a>
     
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul style="color: green; font-weight: bold; text-align: center; list-style: none; padding: 0;">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Sort button -->
     <form action="{{ url_for('search') }}" method="GET" style="text-align: center; margin-bottom: 2em;">
         <label for="sort">Sort by Price:</label>
         <select name="sort" id="sort" onchange="this.form.submit()">
@@ -46,8 +58,25 @@
         <div>
             <p><strong>Address:</strong> {{ item['address'] }}</p>
             <p><strong>Owner:</strong> {{ item['owner'] }}</p>
-            <p><strong>Price:</strong> {{ item['price'] }}</p>
+            <p><strong>Price Per Day:</strong> {{ item['price'] }}</p>
         </div>
+
+            <!-- Add to Cart Button -->
+        <div style="margin-right: 5em; margin-left: 3em;">
+            {% if session.get('username') %}
+                {% if session['username'] != item['owner'] %}
+                    <form action="{{ url_for('add_to_cart', image_id=item['id']) }}" method="POST">
+                        <button type="submit">Add to Cart</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <form action="{{ url_for('home') }}" method="GET">
+                    <button type="submit">Add to Cart</button>
+                </form>
+            {% endif %}
+        </div>
+
+
     </div>
     {% endfor %}
 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/airhome-empty.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cartPage.css') }}">
+    <title>AirHome Home</title>
+</head>
+
+<body>  
+    <!-- Icon -->
+    <h1>   
+        <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo"> 
+    </h1> 
+
+    <!-- Go Back Button -->
+    <a href="{{ url_for('user') }}">
+        <p>Go Back </p>
+    </a>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul style="color: green; font-weight: bold; text-align: center; list-style: none; padding: 0;">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Listings Section -->
+    {% if cart_items %}
+    {% for item in cart_items %}
+    <div style="display: flex; align-items: center; margin-bottom: 30px;">
+        <!-- Image -->
+        <div style="flex-shrink: 0; margin: 0 40px 0 5em;">
+            {% if item[1] %}
+                <img src="{{ url_for('uploaded_file', filename=item[1].split('/')[-1]) }}" width="300">
+            {% else %}
+                <p>No image available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Text Info -->
+        <div>
+            <p><strong>Address:</strong> {{ item[2] }}</p>
+            <p><strong>Owner:</strong> {{ item[3] }}</p>
+            <p><strong>Price:</strong> ${{ "%.2f"|format(item[4]) }}</p>
+        </div>
+        
+        <!-- Remove from Cart Button -->
+        <div style="margin-left: 3em; margin-right: 5em;">
+            <form action="{{ url_for('remove_from_cart', image_id=item[0]) }}" method="POST">
+                <button type="submit" style="padding: 8px 16px;">Remove from Cart</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+        <p style="text-align:center; font-size: 1.2em;">Your cart is empty.</p>
+        <div style="text-align:center; margin-top: 30px;">
+            <a href="{{ url_for('search') }}">
+                <button style="padding: 10px 20px; font-size: 1em;">View Listings</button>
+            </a>
+        </div>
+    {% endif %}
+
+    
+    <!-- Checkout Box -->
+    {% if cart_items %}
+    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 2px dashed #aaa; border-radius: 10px; font-family: monospace;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Checkout Summary</h2>
+
+        {% for item in cart_items %}
+            <div style="display: flex; justify-content: space-between;">
+                <span>{{ item[2] }}</span>  <!-- Address -->
+                <span>${{ "%.2f"|format(item[4]) }}</span> <!-- Price -->
+            </div>
+        {% endfor %}
+
+        <hr style="margin: 15px 0;">
+
+        <div style="display: flex; justify-content: space-between;">
+            <span>AirHome fee (1.00%)</span>
+            <span>${{ "%.2f"|format(fee) }}</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+            <span>Total</span>
+            <span>${{ "%.2f"|format(total) }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+
+</body>
+</html>

@@ -9,6 +9,7 @@
 </head>
 
 <body>  
+    
     <!-- Icon has link to homepage -->
     <h1>
         <a href="{{ url_for('home') }}">
@@ -18,6 +19,19 @@
 
     <p>Hello, {{ username }}!</p>
     
+    <!-- Flash Messages-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+
+
     <!-- Go Back Button-->
     <a href="{{ url_for('user') }}">
         <p>Go Back </p>
@@ -27,10 +41,12 @@
     <!-- Listing Form -->
     <p> Allowed: File types: png, jpg, jpeg, gif</p>
     <form action="{{ url_for('createListing') }}" method="POST" enctype="multipart/form-data" style="text-align:center; margin-top: 2em;">
-        <div>
-            <label for="image">Upload Image:</label><br>
-            <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-        </div><br>
+       
+    <!-- Upload Image -->   
+    <div>
+        <label for="image">Upload Image:</label><br>
+        <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+    </div><br>
 
     <!-- Image Preview -->
     <div>
@@ -42,36 +58,34 @@
         <label for="address">Address:</label><br>
         <input type="text" id="address" name="address" required style="width: 300px; padding: 0.5em;">
     </div><br>
+
+
     <!-- text entry box for Price -->
     <div>
-        <label for="price">Price:</label><br>
+        <label for="price">Price Per Day:</label><br>
         <input type="text" id="price" name="price" required style="width: 300px; padding: 0.5em;">
     </div><br>
 
+
     <!-- submit button -->
     <button type="submit">Submit Listing</button>
+
 </form>
 
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
 
 
 <!-- Image Preview Script-->
-<script>
-    function previewImage(event) {
-        const preview = document.getElementById('preview');
-        preview.src = URL.createObjectURL(event.target.files[0]);
-        preview.style.display = 'block';
-    }
-</script>
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            preview.src = URL.createObjectURL(event.target.files[0]);
+            preview.style.display = 'block';
+        }
+    </script>
+
+
+
 
 
 
