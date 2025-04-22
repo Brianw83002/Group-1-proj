@@ -188,8 +188,10 @@ def viewBookings():
     
     # Fetch all bookings made by this user
     bookings = conn.execute('''
-        SELECT user_uploads.id, user_uploads.image_path, user_uploads.address, 
-               user_uploads.owner, user_uploads.price, bookings.start_date, bookings.end_date
+        SELECT bookings.id as booking_id, user_uploads.id as listing_id, 
+               user_uploads.image_path, user_uploads.address, 
+               user_uploads.owner, user_uploads.price, 
+               bookings.start_date, bookings.end_date
         FROM bookings
         JOIN user_uploads ON bookings.listing_id = user_uploads.id
         WHERE bookings.username = ?
@@ -197,24 +199,24 @@ def viewBookings():
     
     conn.close()
     
-    # Process bookings to calculate nights, total, and fee
+    # Process bookings (same as before)
     processed_bookings = []
     for booking in bookings:
         start = datetime.strptime(booking['start_date'], '%Y-%m-%d')
         end = datetime.strptime(booking['end_date'], '%Y-%m-%d')
         nights = 1 + (end - start).days
         total = nights * booking['price']
-        fee = total * 0.01  # 1% service fee
+        fee = total * 0.01
+        total = fee + nights * booking['price']
         
         processed_bookings.append({
-            **dict(booking),  # Unpack all original booking fields
+            **dict(booking),
             'nights': nights,
             'total': total,
             'fee': fee
         })
     
     return render_template('viewBooking.html', bookings=processed_bookings)
-
 #======================END OF ROUTES/PAGES====================================================
 
 
@@ -325,6 +327,12 @@ def checkout():
         VALUES (?, ?, ?, ?)
     ''', (session['username'], image_id, start_date, end_date))
 
+    # Clear the entire cart for this user
+    conn.execute('DELETE FROM cart WHERE username = ?', (session['username'],))
+    
+    conn.commit()
+    flash('Booking confirmed! Your cart has been cleared.', 'success')
+
 
     # Generate a list of all dates from start_date to end_date
     try:
@@ -335,6 +343,7 @@ def checkout():
         while current_date <= end_date:
             dates_booked.append(current_date.strftime('%Y-%m-%d'))
             current_date += timedelta(days=1)
+
     except ValueError:
         flash('Invalid date format', 'error')
         return redirect(url_for('cart'))
@@ -354,6 +363,7 @@ def checkout():
             conn.execute('UPDATE user_uploads SET datesBooked = ? WHERE id = ?', 
                       (json.dumps(updated_dates), image_id))
             conn.commit()
+
     except Exception as e:
         conn.rollback()
         flash('Error updating booking dates', 'error')
@@ -363,6 +373,55 @@ def checkout():
 
     return redirect(url_for('cart'))
 
+
+@app.route('/cancel_booking', methods=['POST'])
+def cancel_booking():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    booking_id = request.form.get('booking_id')
+    listing_id = request.form.get('listing_id')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    
+    conn = get_db_connection()
+    try:
+        # 1. Delete from bookings table
+        conn.execute('DELETE FROM bookings WHERE id = ? AND username = ?', 
+                   (booking_id, session['username']))
+        
+        # 2. Remove dates from user_uploads.datesBooked
+        # Generate dates to remove
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        dates_to_remove = []
+        current_date = start
+        while current_date <= end:
+            dates_to_remove.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+        
+        # Get current booked dates
+        row = conn.execute('SELECT datesBooked FROM user_uploads WHERE id = ?', 
+                         (listing_id,)).fetchone()
+        
+        if row and row['datesBooked']:
+            current_dates = json.loads(row['datesBooked'])
+            # Remove cancelled dates
+            updated_dates = [d for d in current_dates if d not in dates_to_remove]
+            # Update the database
+            conn.execute('UPDATE user_uploads SET datesBooked = ? WHERE id = ?',
+                       (json.dumps(updated_dates), listing_id))
+        
+        conn.commit()
+        flash('Booking successfully cancelled', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash('Failed to cancel booking', 'error')
+        print(f"Error cancelling booking: {e}")
+    finally:
+        conn.close()
+    
+    return redirect(url_for('viewBookings'))
 
 #=============END OF FUNCTIONS================================================
 

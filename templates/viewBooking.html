@@ -106,8 +106,22 @@
                     <p><strong>Total Cost:</strong> ${{ "%.2f"|format(booking['total']) }}</p>
                     <p><small>Includes AirHome fee: ${{ "%.2f"|format(booking['fee']) }}</small></p>
                 </div>
+                
+                <!-- cancel button -->
+                <form action="{{ url_for('cancel_booking') }}" method="POST" style="margin-top: 15px;">
+                    <input type="hidden" name="booking_id" value="{{ booking['booking_id'] }}">
+                    <input type="hidden" name="listing_id" value="{{ booking['listing_id'] }}">
+                    <input type="hidden" name="start_date" value="{{ booking['start_date'] }}">
+                    <input type="hidden" name="end_date" value="{{ booking['end_date'] }}">
+                    <button type="submit" class="cancel-btn" 
+                            onclick="return confirm('Are you sure you want to cancel this booking?')">
+                        Cancel Booking
+                    </button>
+                </form>
+
+
             </div>
-            
+
         </div>
         {% endfor %}
     {% else %}
