@@ -196,7 +196,24 @@ def viewBookings():
     ''', (username,)).fetchall()
     
     conn.close()
-    return render_template('viewBooking.html', bookings=bookings)
+    
+    # Process bookings to calculate nights, total, and fee
+    processed_bookings = []
+    for booking in bookings:
+        start = datetime.strptime(booking['start_date'], '%Y-%m-%d')
+        end = datetime.strptime(booking['end_date'], '%Y-%m-%d')
+        nights = 1 + (end - start).days
+        total = nights * booking['price']
+        fee = total * 0.01  # 1% service fee
+        
+        processed_bookings.append({
+            **dict(booking),  # Unpack all original booking fields
+            'nights': nights,
+            'total': total,
+            'fee': fee
+        })
+    
+    return render_template('viewBooking.html', bookings=processed_bookings)
 
 #======================END OF ROUTES/PAGES====================================================
 
@@ -297,8 +314,17 @@ def checkout():
     if not start_date or not end_date:
         flash('Please select both start and end dates', 'error')
         return redirect(url_for('cart'))
-
     flash('Booking confirmed for dates: {} to {}'.format(start_date, end_date), 'success')
+
+    # Connect to the correct database
+    conn = get_db_connection()
+
+    # Insert into bookings table
+    conn.execute('''
+        INSERT INTO bookings (username, listing_id, start_date, end_date)
+        VALUES (?, ?, ?, ?)
+    ''', (session['username'], image_id, start_date, end_date))
+
 
     # Generate a list of all dates from start_date to end_date
     try:
@@ -312,9 +338,6 @@ def checkout():
     except ValueError:
         flash('Invalid date format', 'error')
         return redirect(url_for('cart'))
-
-    # Connect to the correct database
-    conn = get_db_connection()
     
     try:
         # Fetch the current datesBooked for the image

@@ -90,6 +90,7 @@
                 {% endif %}
             </div>
 
+
             <!-- Booking Details -->
             <div class="booking-details">
                 <p><strong>Address:</strong> {{ booking['address'] }}</p>
@@ -101,20 +102,12 @@
                     <p><strong>Booking Dates:</strong></p>
                     <p>From: {{ booking['start_date'] }}</p>
                     <p>To: {{ booking['end_date'] }}</p>
-                    
-                    {% set start_date = booking['start_date']|string %}
-                    {% set end_date = booking['end_date']|string %}
-                    {% set start = datetime.strptime(start_date, '%Y-%m-%d') %}
-                    {% set end = datetime.strptime(end_date, '%Y-%m-%d') %}
-                    {% set nights = (end - start).days %}
-                    {% set total = nights * booking['price'] %}
-                    {% set fee = total * 0.01 %}
-                    
-                    <p><strong>Total Nights:</strong> {{ nights }}</p>
-                    <p><strong>Total Cost:</strong> ${{ "%.2f"|format(total) }}</p>
-                    <p><small>Includes AirHome fee: ${{ "%.2f"|format(fee) }}</small></p>
+                    <p><strong>Total Nights:</strong> {{ booking['nights'] }}</p>
+                    <p><strong>Total Cost:</strong> ${{ "%.2f"|format(booking['total']) }}</p>
+                    <p><small>Includes AirHome fee: ${{ "%.2f"|format(booking['fee']) }}</small></p>
                 </div>
             </div>
+            
         </div>
         {% endfor %}
     {% else %}
