@@ -55,6 +55,16 @@
         </a>
         <p>Edit Listing</p>
     </div>
+
+    <div class="icon">
+        <a href="{{ url_for('viewBookings') }}">
+            <img src="{{ url_for('static', filename='images/view.png') }}" alt="edit">
+        </a>
+        <p>View Bookings</p>
+    </div>
+
+
+
     <div class="icon">
         <a href="{{ url_for('home') }}">
             <img src="{{ url_for('static', filename='images/logout.png') }}" alt="logout">

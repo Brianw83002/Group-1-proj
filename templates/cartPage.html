@@ -49,6 +49,8 @@
             <p><strong>Owner:</strong> {{ item[3] }}</p>
             <p><strong>Price:</strong> ${{ "%.2f"|format(item[4]) }}</p>
         </div>
+
+        <span id="price-per-night" style="display: none;">{{ "%.2f"|format(item[4]) }}</span>
         
         <!-- Remove from Cart Button -->
         <div style="margin-left: 3em; margin-right: 5em;">
@@ -56,6 +58,39 @@
                 <button type="submit" style="padding: 8px 16px;">Remove from Cart</button>
             </form>
         </div>
+
+        <!-- Start Date Calendar -->
+        <div>
+            <label for="start-calendar">Select a Start Date:</label>
+            <input type="text" id="start-calendar" readonly>
+
+            <div class="controls">
+                <select id="start-month-select"></select>
+                <select id="start-year-select"></select>
+            </div>
+
+            <div id="start-calendar-container" class="calendar"></div>
+        </div>
+
+        <!--End Date Calander-->
+        <div>
+            <label for="end-calendar">Select an End Date:</label>
+            <input type="text" id="end-calendar" readonly>
+
+            <div class="controls">
+                <select id="end-month-select"></select>
+                <select id="end-year-select"></select>
+            </div>
+
+            <div id="end-calendar-container" class="calendar"></div>
+        </div>
+
+        <!-- Save Dates Button -->
+        <div style="margin-left: 2em;">
+            <button type="button" onclick="saveDates()">Save Dates</button>
+        </div>
+
+
     </div>
     {% endfor %}
     {% else %}
@@ -66,6 +101,11 @@
             </a>
         </div>
     {% endif %}
+
+        
+  
+ 
+
 
     
     <!-- Checkout Box -->
@@ -79,23 +119,221 @@
                 <span>${{ "%.2f"|format(item[4]) }}</span> <!-- Price -->
             </div>
         {% endfor %}
+        <div style="display: flex; justify-content: space-between;">
+            <span>Days Booked:</span>
+            <span id="days-booked">0</span>
+        </div>
 
         <hr style="margin: 15px 0;">
+        
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+            <span>Total for Dates:</span>
+            <span id="date-total">$0.00</span>
+        </div>
 
         <div style="display: flex; justify-content: space-between;">
             <span>AirHome fee (1.00%)</span>
-            <span>${{ "%.2f"|format(fee) }}</span>
+            <span id="fee-amount">$0.00</span>
         </div>
 
         <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
             <span>Total</span>
-            <span>${{ "%.2f"|format(total) }}</span>
+            <span id="final-total">$0.00</span>
         </div>
     </div>
     {% endif %}
 
+    <!-- Checkout Button -->
+    {% if cart_items %}
+    <div style="text-align: center; margin-top: 30px;">
+        <form action="{{ url_for('checkout') }}" method="POST">
+            <input type="hidden" id="start-date" name="start_date">
+            <input type="hidden" id="end-date" name="end_date">
+            <input type="hidden" name="image_id" value="{{ cart_items[0][0] }}">
+            
+            <button type="submit" style="padding: 10px 20px; font-size: 1.2em;">Checkout</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <script>
+        // Start date calendar
+        const startCalendarInput = document.getElementById("start-calendar");
+        const startCalendarContainer = document.getElementById("start-calendar-container");
+        const startMonthSelect = document.getElementById("start-month-select");
+        const startYearSelect = document.getElementById("start-year-select");
+
+        // End date calendar
+        const endCalendarInput = document.getElementById("end-calendar");
+        const endCalendarContainer = document.getElementById("end-calendar-container");
+        const endMonthSelect = document.getElementById("end-month-select");
+        const endYearSelect = document.getElementById("end-year-select");
+
+        //Disable dates
+        const disabledDates = {{ disabled_dates|tojson }};
+        console.log(disabledDates);  // For debugging, you can check the console
+
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Populate month and year dropdowns for both calendars
+        function populateDropdowns(monthSelect, yearSelect) {
+            for (let m = 0; m < 12; m++) {
+                const option = document.createElement("option");
+                option.value = m;
+                option.textContent = monthNames[m];
+                monthSelect.appendChild(option);
+            }
+
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+                const option = document.createElement("option");
+                option.value = y;
+                option.textContent = y;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Call function to populate the dropdowns for both calendars
+        populateDropdowns(startMonthSelect, startYearSelect);
+        populateDropdowns(endMonthSelect, endYearSelect);
+
+        // Function to generate calendar for a given year and month
+        function generateCalendar(year, month, calendarContainer, calendarInput) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            let dayCount = 1;
+            calendarContainer.innerHTML = '';
+
+            // Create empty slots
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.classList.add('day');
+                calendarContainer.appendChild(emptyCell);
+            }
+
+            // Fill in actual dates
+            for (let i = firstDay; i < 42 && dayCount <= lastDate; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('day');
+                dayCell.textContent = dayCount;
+
+                const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dayCount.toString().padStart(2, '0')}`;
+                if (disabledDates.includes(dateStr)) {
+                    dayCell.classList.add('disabled');
+                }
+
+                dayCell.addEventListener('click', () => {
+                    if (!dayCell.classList.contains('disabled')) {
+                        calendarInput.value = dateStr;
+                        hideCalendar(calendarContainer); // Hide calendar once a date is selected
+                    }
+                });
+
+                calendarContainer.appendChild(dayCell);
+                dayCount++;
+            }
+        }
+
+        // Show the calendar and controls
+        function showCalendar(calendarContainer) {
+            calendarContainer.style.display = 'grid';
+        }
+
+        // Hide the calendar and controls
+        function hideCalendar(calendarContainer) {
+            calendarContainer.style.display = 'none';
+        }
+
+        // Event listener for start date calendar input
+        startCalendarInput.addEventListener('click', () => {
+            if (startCalendarContainer.style.display === 'grid') {
+                hideCalendar(startCalendarContainer);
+            } else {
+                showCalendar(startCalendarContainer);
+            }
+        });
+
+        // Event listener for end date calendar input
+        endCalendarInput.addEventListener('click', () => {
+            if (endCalendarContainer.style.display === 'grid') {
+                hideCalendar(endCalendarContainer);
+            } else {
+                showCalendar(endCalendarContainer);
+            }
+        });
+
+        // Event listeners for dropdown changes for both calendars
+        startMonthSelect.addEventListener('change', () => {
+            generateCalendar(parseInt(startYearSelect.value), parseInt(startMonthSelect.value), startCalendarContainer, startCalendarInput);
+        });
+
+        startYearSelect.addEventListener('change', () => {
+            generateCalendar(parseInt(startYearSelect.value), parseInt(startMonthSelect.value), startCalendarContainer, startCalendarInput);
+        });
+
+        endMonthSelect.addEventListener('change', () => {
+            generateCalendar(parseInt(endYearSelect.value), parseInt(endMonthSelect.value), endCalendarContainer, endCalendarInput);
+        });
+
+        endYearSelect.addEventListener('change', () => {
+            generateCalendar(parseInt(endYearSelect.value), parseInt(endMonthSelect.value), endCalendarContainer, endCalendarInput);
+        });
+
+        // Initial render for both calendars
+        generateCalendar(2025, 4, startCalendarContainer, startCalendarInput); // Start date (May 2025)
+        generateCalendar(2025, 4, endCalendarContainer, endCalendarInput); // End date (May 2025)
+
+
+        // Save start/end dates and calculate number of days
+        function saveDates() {
+            const startDate = new Date(startCalendarInput.value);
+            const endDate = new Date(endCalendarInput.value);
+
+            if (!startCalendarInput.value || !endCalendarInput.value) {
+                alert("Please select both a start and end date.");
+                return;
+            }
+
+            if (endDate < startDate) {
+                alert("End date must be after start date.");
+                return;
+            }
+
+            const timeDiff = endDate - startDate;
+            const dayCount = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Include both dates
+
+            // Update days booked
+            document.getElementById("days-booked").textContent = dayCount;
+
+            // Calculate totals
+            const pricePerNight = parseFloat(document.getElementById("price-per-night").textContent.replace("$", ""));
+            const totalForDates = pricePerNight * dayCount;
+            const fee = totalForDates * 0.01;
+            const finalTotal = totalForDates + fee;
+
+            // Update DOM
+            document.getElementById("date-total").textContent = `$${totalForDates.toFixed(2)}`;
+
+            // Update the fee and total display
+            document.getElementById("fee-amount").textContent = `$${fee.toFixed(2)}`;
+            document.getElementById("final-total").textContent = `$${finalTotal.toFixed(2)}`;
+
+            // Set hidden inputs for checkout
+            document.getElementById("start-date").value = startCalendarInput.value;
+            document.getElementById("end-date").value = endCalendarInput.value;
+        }
 
 
 
+
+
+
+    </script>
+
+    
 </body>
 </html>

@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # for flash messages
@@ -63,14 +65,26 @@ def createAccount():
 def search():
     conn = get_db_connection()
     sort_order = request.args.get('sort')
+    
     if sort_order == 'asc':
         listings = conn.execute('SELECT * FROM user_uploads ORDER BY CAST(price AS INTEGER) ASC').fetchall()
     elif sort_order == 'desc':
         listings = conn.execute('SELECT * FROM user_uploads ORDER BY CAST(price AS INTEGER) DESC').fetchall()
     else:
         listings = conn.execute('SELECT * FROM user_uploads').fetchall()
+    
+    # Check if user has an item in cart
+    cart_has_item = False
+    if 'username' in session:
+        cart_count = conn.execute(
+            'SELECT COUNT(*) FROM cart WHERE username = ?',
+            (session['username'],)
+        ).fetchone()[0]
+        cart_has_item = cart_count > 0
+    
     conn.close()
-    return render_template('searchPage.html', listings=listings)
+    return render_template('searchPage.html', listings=listings, cart_has_item=cart_has_item)
+
 
 # Route for the Users page
 @app.route('/user')
@@ -90,12 +104,22 @@ def cart():
 
     # Fetch cart items from the database
     cart_items = conn.execute('''
-        SELECT user_uploads.id, user_uploads.image_path, user_uploads.address, user_uploads.owner, user_uploads.price
+        SELECT user_uploads.id, user_uploads.image_path, user_uploads.address, 
+               user_uploads.owner, user_uploads.price, user_uploads.datesBooked
         FROM cart
         JOIN user_uploads ON cart.image_id = user_uploads.id
         WHERE cart.username = ?
     ''', (username,)).fetchall()
     conn.close()
+
+    # Extract all the datesBooked from cart items and convert to a flat list
+    disabled_dates = []
+    for item in cart_items:
+        if item[5]:  # If datesBooked is not None
+            disabled_dates.extend(json.loads(item[5]))  # Parse JSON and add to list
+
+    # Remove duplicates
+    disabled_dates = list(set(disabled_dates))
 
     # Calculate subtotal (make sure price is treated as float)
     subtotal = sum(float(item[4]) for item in cart_items)
@@ -112,9 +136,8 @@ def cart():
                            cart_items=cart_items, 
                            subtotal=subtotal, 
                            fee=fee, 
-                           total=total)
-
-
+                           total=total,
+                           disabled_dates=disabled_dates)
 
 # Route for the createListing page
 @app.route('/createListing', methods=['GET', 'POST'])
@@ -154,6 +177,26 @@ def editListing():
     conn.close()
     return render_template('editListing.html', username=username, listings=listings)
 
+
+@app.route('/viewBooking')
+def viewBookings():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+    conn = get_db_connection()
+    
+    # Fetch all bookings made by this user
+    bookings = conn.execute('''
+        SELECT user_uploads.id, user_uploads.image_path, user_uploads.address, 
+               user_uploads.owner, user_uploads.price, bookings.start_date, bookings.end_date
+        FROM bookings
+        JOIN user_uploads ON bookings.listing_id = user_uploads.id
+        WHERE bookings.username = ?
+    ''', (username,)).fetchall()
+    
+    conn.close()
+    return render_template('viewBooking.html', bookings=bookings)
 
 #======================END OF ROUTES/PAGES====================================================
 
@@ -196,30 +239,42 @@ def get_db_connection():
 @app.route('/add_to_cart/<int:image_id>', methods=['POST'])
 def add_to_cart(image_id):
     if 'username' not in session:
-        return redirect(url_for('home'))  # redirect if not logged in
+        return redirect(url_for('home'))
+    
     username = session['username']
     conn = get_db_connection()
-    existing = conn.execute('SELECT * FROM cart WHERE username = ? AND image_id = ?', (username, image_id)).fetchone()
-    if not existing:
-        conn.execute('INSERT INTO cart (username, image_id) VALUES (?, ?)', (username, image_id))
-        conn.commit()
-        flash('Added to cart!')
-    else:
-        flash('Item already in cart.')
+    
+    # Check if user already has an item in cart
+    cart_count = conn.execute('SELECT COUNT(*) FROM cart WHERE username = ?', (username,)).fetchone()[0]
+    
+    if cart_count >= 1:
+        flash('Your cart is full. You can only have one item at a time.', 'error')
+        conn.close()
+        return redirect(url_for('search'))
+    
+    # Add item to cart
+    conn.execute('INSERT INTO cart (username, image_id) VALUES (?, ?)', (username, image_id))
+    conn.commit()
     conn.close()
+    
+    flash('Item added to cart!', 'success')
     return redirect(url_for('search'))
 
 # Route to remove item from cart
 @app.route('/remove_from_cart/<int:image_id>', methods=['POST'])
 def remove_from_cart(image_id):
     if 'username' not in session:
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
+
     username = session['username']
     conn = get_db_connection()
+
+    # Remove the image from the cart
     conn.execute('DELETE FROM cart WHERE username = ? AND image_id = ?', (username, image_id))
     conn.commit()
     conn.close()
-    flash('Removed from cart.')
+
+    flash('Item removed from cart!', 'success')
     return redirect(url_for('cart'))
 
 # checks if uploaded file has allowed extension
@@ -227,6 +282,64 @@ UPLOAD_FOLDER = 'userUploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Redirect to login if user not logged in
+
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+    image_id = request.form['image_id']  # Get the image_id from the form
+    
+    # Validate dates
+    if not start_date or not end_date:
+        flash('Please select both start and end dates', 'error')
+        return redirect(url_for('cart'))
+
+    flash('Booking confirmed for dates: {} to {}'.format(start_date, end_date), 'success')
+
+    # Generate a list of all dates from start_date to end_date
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        dates_booked = []
+        current_date = start_date
+        while current_date <= end_date:
+            dates_booked.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+    except ValueError:
+        flash('Invalid date format', 'error')
+        return redirect(url_for('cart'))
+
+    # Connect to the correct database
+    conn = get_db_connection()
+    
+    try:
+        # Fetch the current datesBooked for the image
+        row = conn.execute('SELECT datesBooked FROM user_uploads WHERE id = ?', (image_id,)).fetchone()
+
+        if row:
+            # Parse the current datesBooked list (stored as a JSON string)
+            current_dates_booked = json.loads(row[0]) if row[0] else []
+
+            # Merge the current dates with the new dates (avoid duplicates by converting to a set)
+            updated_dates = list(set(current_dates_booked + dates_booked))
+
+            # Update the row with the new datesBooked list
+            conn.execute('UPDATE user_uploads SET datesBooked = ? WHERE id = ?', 
+                      (json.dumps(updated_dates), image_id))
+            conn.commit()
+    except Exception as e:
+        conn.rollback()
+        flash('Error updating booking dates', 'error')
+        print(f"Error: {e}")
+    finally:
+        conn.close()
+
+    return redirect(url_for('cart'))
+
 
 #=============END OF FUNCTIONS================================================
 

@@ -61,17 +61,21 @@
             <p><strong>Price Per Day:</strong> {{ item['price'] }}</p>
         </div>
 
-            <!-- Add to Cart Button -->
+        <!-- Add to Cart Button -->
         <div style="margin-right: 5em; margin-left: 3em;">
             {% if session.get('username') %}
                 {% if session['username'] != item['owner'] %}
                     <form action="{{ url_for('add_to_cart', image_id=item['id']) }}" method="POST">
-                        <button type="submit">Add to Cart</button>
+                        <button type="submit" 
+                                class="add-to-cart-btn"
+                                {% if cart_has_item %}disabled{% endif %}>
+                            {% if cart_has_item %}Cart is Full{% else %}Add to Cart{% endif %}
+                        </button>
                     </form>
                 {% endif %}
             {% else %}
                 <form action="{{ url_for('home') }}" method="GET">
-                    <button type="submit">Add to Cart</button>
+                    <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                 </form>
             {% endif %}
         </div>

@@ -20,3 +20,24 @@ h1 {
         height: auto;     
     }
 
+    .disabled {
+        color: gray;
+        pointer-events: none;
+      }
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        width: 210px;
+        margin-top: 10px;
+      }
+      .day {
+        text-align: center;
+        padding: 10px;
+        cursor: pointer;
+      }
+      .day:hover {
+        background-color: #ddd;
+      }
+      .controls {
+        margin-top: 10px;
+      }

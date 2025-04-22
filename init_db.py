@@ -16,6 +16,10 @@ c.execute('''CREATE TABLE IF NOT EXISTS user_uploads (
                 address TEXT NOT NULL,
                 owner TEXT NOT NULL,
                 price REAL NOT NULL DEFAULT 0.0)''')
+try:
+    c.execute("ALTER TABLE user_uploads ADD COLUMN datesBooked TEXT DEFAULT '[]'")
+except sqlite3.OperationalError:
+    print("datesBooked column already exists.")
 
 # Create cart table
 c.execute('''CREATE TABLE IF NOT EXISTS cart (
@@ -25,16 +29,22 @@ c.execute('''CREATE TABLE IF NOT EXISTS cart (
                 FOREIGN KEY (username) REFERENCES users(username),
                 FOREIGN KEY (image_id) REFERENCES images(id))''')
 
-try:
-    c.execute("ALTER TABLE cart ADD COLUMN start_date TEXT")
-except sqlite3.OperationalError:
-    print("start_date column already exists.")
-try:
-    c.execute("ALTER TABLE cart ADD COLUMN end_date TEXT")
-except sqlite3.OperationalError:
-    print("end_date column already exists.")
 
-# Add this to your DB setup script
+# Create bookings table 
+c.execute('''
+    CREATE TABLE IF NOT EXISTS bookings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        listing_id INTEGER NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (listing_id) REFERENCES user_uploads(id)
+    )
+''')
+
+
+# Create unavailable dates table
 c.execute('''
     CREATE TABLE IF NOT EXISTS unavailable_dates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
