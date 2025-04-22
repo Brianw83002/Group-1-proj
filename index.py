@@ -85,7 +85,7 @@ def search():
     conn.close()
     return render_template('searchPage.html', listings=listings, cart_has_item=cart_has_item)
 
-
+    print()
 # Route for the Users page
 @app.route('/user')
 def user():
