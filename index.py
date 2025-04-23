@@ -256,6 +256,7 @@ def delete_listing():
         conn.commit()
         conn.close()
 
+        print(image_path)
         # Delete the image file from disk
         if os.path.exists(image_path):
             os.remove(image_path)
