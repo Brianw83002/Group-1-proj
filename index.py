@@ -155,6 +155,7 @@ def createListing():
             filename = secure_filename(image.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             image.save(filepath)
+            print(filepath)
             conn = get_db_connection()
             conn.execute("INSERT INTO user_uploads (image_path, address, owner, price) VALUES (?, ?, ?, ?)",
                          (filepath, address, username, price))
@@ -242,10 +243,28 @@ def update_listing():
 def delete_listing():
     listing_id = request.form['id']
     conn = get_db_connection()
-    conn.execute("DELETE FROM user_uploads WHERE id = ?", (listing_id,))
-    conn.commit()
-    conn.close()
-    flash("Listing removed successfully!", "info")
+
+    # Get the image path before deleting
+    cur = conn.execute("SELECT image_path FROM user_uploads WHERE id = ?", (listing_id,))
+    row = cur.fetchone()
+
+    if row:
+        image_path = row['image_path']
+
+        # Delete the listing
+        conn.execute("DELETE FROM user_uploads WHERE id = ?", (listing_id,))
+        conn.commit()
+        conn.close()
+
+        # Delete the image file from disk
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        flash("Listing and image removed successfully!", "info")
+    else:
+        conn.close()
+        flash("Listing not found.", "error")
+
     return redirect(url_for('editListing'))
 
 # Connects to the users.db database
