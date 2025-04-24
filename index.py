@@ -24,48 +24,99 @@ def aboutUs():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        #gets username and password from FrontEnd
         username = request.form['username']
         password = request.form['password']
+        print(f''' 
+                User entered:
+                Username: {username}
+                Password: {password}''')
+
+        #connects to a database and gets a matching username and password associated with it
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
-        if user and user['password'] == password:
-            session['username'] = username
-            return redirect(url_for('user'))
+
+        # if there is a username matching one in the database AND
+        if(user):
+            print(f''' 
+                Username exists
+                in Database:
+                Username: {user['username']}
+                Password: {user['password']}
+                ''')
+
+            # its password matches the one entered it will redirect to user's page 
+            if(user['password'] == password):
+                print("     Passwords match, redirecting to user page")
+                session['username'] = username
+                return redirect(url_for('user'))
+
+        # if not return to login
         else:
+            print("         user not found, redirecting to login")
             flash("Invalid credentials. Please try again.", "error")
-        return render_template('loginPage.html')
     return render_template('loginPage.html')
+
 
 # Route for the createAccount page
 @app.route('/createAccount', methods=['GET', 'POST'])
 def createAccount():
     if request.method == 'POST':
+
+        #get user inputs
         username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirmpassword']
+        print(f''' 
+                User entered:
+                Username: {username}
+                Password: {password}
+                confirm : {confirm_password}
+                ''')
+
         if password != confirm_password:
             flash("Passwords do not match. Please try again.", "error")
+            print("password not equal to confirm_password")
             return render_template('createAccount.html')
+
+        #if both passwords match check if username exists in database
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
+
+        #if user exists in db, prompt user to try again
         if user:
+            print("user found in database")
             flash("Username already exists. Please choose a different one.", "error")
             return render_template('createAccount.html')
+        
+        #Add to data base
         conn = get_db_connection()
         conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
         conn.commit()
+
+        # Check if in database
+        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        if user:
+            print(f'''User successfully added:
+        Username: {user['username']}
+        Password: {user['password']}''')
+        else:
+            print("User not found after insertion.")
+        #close connection to db and go to login
         conn.close()
         return redirect(url_for('login'))
+
     return render_template('createAccount.html')
 
 # Route for the Search page
 @app.route('/search')
-def search():
+def search():  
     conn = get_db_connection()
+
+    #if The user wants to sort by Price
     sort_order = request.args.get('sort')
-    
     if sort_order == 'asc':
         listings = conn.execute('SELECT * FROM user_uploads ORDER BY CAST(price AS INTEGER) ASC').fetchall()
     elif sort_order == 'desc':
@@ -73,7 +124,7 @@ def search():
     else:
         listings = conn.execute('SELECT * FROM user_uploads').fetchall()
     
-    # Check if user has an item in cart
+    # Check if user has an item in cart, if so the page will say empty 
     cart_has_item = False
     if 'username' in session:
         cart_count = conn.execute(
