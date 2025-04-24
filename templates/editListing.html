@@ -11,10 +11,9 @@
 <body> 
     <!-- Home icon and greeting -->
     <h1>
-        <a href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
+        <a href="{{ url_for('user') }}">
+        <img src="{{ url_for('static', filename='images/airhome-empty.png') }}" alt="AirHome Logo">
         </a>
-        <p>Hello, {{ username }}!</p>
     </h1> 
     
     <!-- Go Back Button -->  
