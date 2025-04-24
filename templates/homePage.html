@@ -17,13 +17,15 @@
 
     <h3 class="columns">
         <!-- Updated links to use 'url_for' with correct routes -->
-        <p><a href="{{ url_for('aboutUs') }}">About Us</a></p>
+        <p><a href="{{ url_for('aboutUs') }}"><button class="button" >About Us</button></a></p>
     </h3>
     
     <h2 class="columns">
         <!-- Updated links to use 'url_for' with correct routes -->
-        <p><a href="{{ url_for('login') }}">Login/Create Account</a></p>
-        <p><a href="{{ url_for('search') }}">Search</a></p>
+        <p><a href="{{ url_for('login') }}">
+            <button class="button" >Login/Create Account</button>
+        </a></p>
+        <p><a href="{{ url_for('search') }}"><button class="button" >Search</button></a></p>
     </h2>
 
 </body>
