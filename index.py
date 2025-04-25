@@ -28,10 +28,16 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
+        print(f"username input is: {username}")
+        print(f"password input is: {password}")
+
         # connects to a database and gets a matching username and password associated with it
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
+
+        # Debug print to check the user and password
+        print(f"User from DB: {user}")  # Debug output
 
         # if there is a username matching one in the database AND
         if user:
@@ -135,6 +141,7 @@ def user():
 @app.route('/cart')
 def cart():
     if 'username' not in session:
+        print("No user in session")
         return redirect(url_for('login'))  # Redirect to login if user not logged in
     
     username = session['username']
@@ -307,8 +314,8 @@ def delete_listing():
     return redirect(url_for('editListing'))
 
 # Connects to the users.db database
-def get_db_connection():
-    conn = sqlite3.connect('users.db')
+def get_db_connection(*, database = 'users.db' ):
+    conn = sqlite3.connect(database)
     conn.row_factory = sqlite3.Row  # Allows us to access columns by name (e.g., row['username'])
     return conn
 
