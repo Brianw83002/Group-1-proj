@@ -24,40 +24,27 @@ def aboutUs():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        #gets username and password from FrontEnd
+        # gets username and password from FrontEnd
         username = request.form['username']
         password = request.form['password']
-        print(f''' 
-                User entered:
-                Username: {username}
-                Password: {password}''')
 
-        #connects to a database and gets a matching username and password associated with it
+        # connects to a database and gets a matching username and password associated with it
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
 
         # if there is a username matching one in the database AND
-        if(user):
-            print(f''' 
-                Username exists
-                in Database:
-                Username: {user['username']}
-                Password: {user['password']}
-                ''')
-
-            # its password matches the one entered it will redirect to user's page 
-            if(user['password'] == password):
-                print("     Passwords match, redirecting to user page")
+        if user:
+            # if its password matches the one entered, it will redirect to user's page 
+            if user['password'] == password:
                 session['username'] = username
                 return redirect(url_for('user'))
 
-        # if not return to login
-        else:
-            print("         user not found, redirecting to login")
-            flash("Invalid credentials. Please try again.", "error")
-    return render_template('loginPage.html')
+        # if not, return to login with a flash message
+        flash("Invalid credentials. Please try again.", "error")
+        return redirect(url_for('login'))  # Redirect to login to display the message
 
+    return render_template('loginPage.html')
 
 # Route for the createAccount page
 @app.route('/createAccount', methods=['GET', 'POST'])
