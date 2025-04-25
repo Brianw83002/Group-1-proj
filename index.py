@@ -56,52 +56,43 @@ def login():
 @app.route('/createAccount', methods=['GET', 'POST'])
 def createAccount():
     if request.method == 'POST':
-
-        #get user inputs
+        # Get user inputs
         username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirmpassword']
-        print(f''' 
-                User entered:
-                Username: {username}
-                Password: {password}
-                confirm : {confirm_password}
-                ''')
 
+        # Check if passwords match
         if password != confirm_password:
             flash("Passwords do not match. Please try again.", "error")
-            print("password not equal to confirm_password")
             return render_template('createAccount.html')
 
-        #if both passwords match check if username exists in database
+        # Check if the username already exists in the database
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
 
-        #if user exists in db, prompt user to try again
         if user:
-            print("user found in database")
             flash("Username already exists. Please choose a different one.", "error")
             return render_template('createAccount.html')
         
-        #Add to data base
-        conn = get_db_connection()
-        conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
-        conn.commit()
+        # Add the new user to the database
+        if password == confirm_password:
+            conn = get_db_connection()
+            conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+            conn.commit()
 
-        # Check if in database
+        # Check if the user was successfully added
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
-        if user:
-            print(f'''User successfully added:
-        Username: {user['username']}
-        Password: {user['password']}''')
-        else:
-            print("User not found after insertion.")
-        #close connection to db and go to login
         conn.close()
-        return redirect(url_for('login'))
 
+        # Redirect to the login page
+        return redirect(url_for('login'))  # Make sure this redirection is working
+
+    # Render the createAccount page for GET requests
     return render_template('createAccount.html')
+
+
+
 
 # Route for the Search page
 @app.route('/search')
