@@ -1,7 +1,10 @@
 body{
     margin: 0;
     padding: 0;
-
+    background-image: url('../images/homePageHouse.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; 
     box-sizing: border-box;
     border-right: 50px solid rgb(0, 0, 158);
     border-left:  50px solid rgb(0, 0, 158);
