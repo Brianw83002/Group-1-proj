@@ -1,6 +1,6 @@
 import unittest
 import os
-from index import app  # Assuming your Flask app is in a file called app.py
+from index import app, get_db_connection    # Assuming your Flask app is in a file called app.py
 from flask import jsonify, current_app
 import sqlite3
 
@@ -8,12 +8,29 @@ class FlaskTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Set up the test database here or mock the database
-        pass
+        # Set up the test database and insert a test user
+        cls.db = get_db_connection(database='users.db')
+        cls.cursor = cls.db.cursor()
+        
+        # Create table if it doesn't exist (or use a mock DB schema)
+        cls.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL
+            )
+        """)
+        
+        # Insert test user into the database
+        cls.cursor.execute("""
+            INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)
+        """, ('testuser', 'password123'))
+        
+        cls.db.commit()
 
     @classmethod
     def tearDownClass(cls):
-        # Clean up the database here
+        # Clean up the database after all tests are done
         pass
 
     def setUp(self):
@@ -40,6 +57,24 @@ class FlaskTestCase(unittest.TestCase):
     def test_login_page(self):
         response = self.client.get('/login')
         self.assertEqual(response.status_code, 200)
+
+    def test_login_successful(self):
+        # Simulate login with valid credentials
+        response = self.client.post('/login', data=dict(
+            username='testuser',
+            password='password123'
+        ), follow_redirects=True)
+        
+        # Check if the response is a redirection (or to the appropriate page after login)
+        self.assertEqual(response.status_code, 200)  # Check for a successful login (home or dashboard page)
+
+        # Check if the session variable 'username' is set, which indicates a successful login
+        with self.client.session_transaction() as session:
+            self.assertEqual(session.get('username'), 'testuser')
+
+        # Optionally, you can check if certain content is present on the page (e.g., a welcome message)
+        self.assertIn(b"Hello, testuser!", response.data)  # Modify based on your actual content
+
 
     def test_create_account(self):
         response = self.client.get('/createAccount')
