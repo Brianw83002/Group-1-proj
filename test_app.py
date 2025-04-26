@@ -5,6 +5,7 @@ from flask import jsonify, current_app
 import sqlite3
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import json
 
 
 class FlaskTestCase(unittest.TestCase):
@@ -265,9 +266,39 @@ class FlaskTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Price Per Day", response.data)
 
+    def test_add_to_cart(self):
+        # Clean up existing cart entry for test user
+        conn = get_db_connection()
+        conn.execute("DELETE FROM cart WHERE username = ?", ('test_user',))
+        conn.execute("DELETE FROM user_uploads WHERE id = ?", (1,))
 
+        # Insert a test listing to be added to cart
+        conn.execute('''
+            INSERT INTO user_uploads (id, image_path, address, owner, price, datesBooked)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (1, 'image.jpg', '123 Test St', 'owner_user', 99.99, '[]'))
+        conn.commit()
+        conn.close()
 
+        # Simulate logged-in user
+        with self.client.session_transaction() as sess:
+            sess['username'] = 'test_user'
 
+        # Send POST request to add listing to cart
+        response = self.client.post('/add_to_cart/1', follow_redirects=True)
+
+        # Check that response is OK and success message is shown
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Item added to cart!', response.data)
+
+        # Verify that item was added to cart
+        conn = get_db_connection()
+        result = conn.execute("SELECT * FROM cart WHERE username = ?", ('test_user',)).fetchone()
+        conn.close()
+        self.assertIsNotNone(result)
+        self.assertEqual(result['image_id'], 1)
+
+#============================Test USER========================================
 
     def test_user(self):
         # Simulate a logged-in user by setting a session variable
@@ -278,6 +309,18 @@ class FlaskTestCase(unittest.TestCase):
         # Check if the status code is 200, meaning the page loads successfully
         self.assertEqual(response.status_code, 200)
         
+    def test_user_route_redirects_without_session(self):
+        # Make a request to /user with no session set
+        response = self.client.get('/user', follow_redirects=False)
+
+        # Expect a redirect (302) to the home page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/', response.headers['Location'])
+
+
+
+#============================Test CART========================================
+
     def test_cart(self):
         # Simulate a logged-in user by setting a session variable
         with self.client.session_transaction() as session:
@@ -285,7 +328,51 @@ class FlaskTestCase(unittest.TestCase):
         response = self.client.get('/cart')
         self.assertEqual(response.status_code, 200)
 
+    def test_cart_redirects_if_user_not_logged_in(self):
+        # Simulate request to /cart with no session
+        response = self.client.get('/cart', follow_redirects=False)
 
+        # It should redirect to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login', response.headers['Location'])
+
+    def test_remove_from_cart(self):
+        # Clean up any existing data
+        conn = get_db_connection()
+        conn.execute("DELETE FROM cart WHERE username = ?", ('test_user',))
+        conn.execute("DELETE FROM user_uploads WHERE id = ?", (1,))
+
+        # Add a test listing to user_uploads
+        conn.execute('''
+            INSERT INTO user_uploads (id, image_path, address, owner, price, datesBooked)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (1, 'image.jpg', '123 Test St', 'owner_user', 50.00, '[]'))
+
+        # Add the listing to the cart
+        conn.execute('''
+            INSERT INTO cart (username, image_id)
+            VALUES (?, ?)
+        ''', ('test_user', 1))
+        conn.commit()
+        conn.close()
+
+        # Simulate logged-in user
+        with self.client.session_transaction() as sess:
+            sess['username'] = 'test_user'
+
+        # Send POST request to remove the item
+        response = self.client.post('/remove_from_cart/1', follow_redirects=True)
+
+        # Check that response is OK and success message is shown
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Item removed from cart!', response.data)
+
+        # Verify item is no longer in cart
+        conn = get_db_connection()
+        result = conn.execute("SELECT * FROM cart WHERE username = ?", ('test_user',)).fetchone()
+        conn.close()
+        self.assertIsNone(result)
+#============================Test Create Listing========================================
 
     def test_create_listing(self):
         # Simulate a logged-in user by setting a session variable
@@ -349,7 +436,7 @@ class FlaskTestCase(unittest.TestCase):
                 os.remove(image_path)
 
 
-
+#============================Test Edit Listing========================================
     def test_edit_listing(self):
         # Simulate a logged-in user by setting a session variable
         with self.client.session_transaction() as session:
@@ -357,12 +444,188 @@ class FlaskTestCase(unittest.TestCase):
         response = self.client.get('/editListing')
         self.assertEqual(response.status_code, 200)
 
-    def test_view_bookings(self):
-        # Simulate a logged-in user by setting a session variable
-        with self.client.session_transaction() as session:
-            session['username'] = 'testuser'
-        response = self.client.get('/viewBooking')
+    def test_update_listing(self):
+        # Clear any existing listing with the same ID
+        conn = get_db_connection()
+        conn.execute("DELETE FROM user_uploads WHERE id = ?", (1,))
+
+        # Insert a test listing
+        conn.execute('''
+            INSERT INTO user_uploads (id, image_path, address, owner, price, datesBooked)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (1, 'test_image.jpg', 'Old Address', 'test_user', 100.0, '[]'))
+        conn.commit()
+        conn.close()
+
+        # Simulate logged-in user
+        with self.client.session_transaction() as sess:
+            sess['username'] = 'test_user'
+
+        # Send POST request to update the listing
+        response = self.client.post('/update_listing', data={
+            'id': 1,
+            'address': 'New Address',
+            'price': '150.00'
+        }, follow_redirects=True)
+
+        # Check that response is OK
         self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Listing updated successfully!', response.data)
+
+        # Verify database was updated
+        conn = get_db_connection()
+        updated = conn.execute("SELECT address, price FROM user_uploads WHERE id = ?", (1,)).fetchone()
+        conn.close()
+        self.assertEqual(updated['address'], 'New Address')
+        self.assertEqual(float(updated['price']), 150.00)
+        
+    def test_delete_listing(self):
+        # Set up test image path
+        test_image_path = 'test_image_to_delete.jpg'
+        with open(test_image_path, 'w') as f:
+            f.write('fake image content')
+
+        # Connect to database
+        conn = get_db_connection()
+
+        # First delete any existing listing with id = 1
+        conn.execute("DELETE FROM user_uploads WHERE id = ?", (1,))
+
+        # Insert the test listing
+        conn.execute('''
+            INSERT INTO user_uploads (id, image_path, address, owner, price, datesBooked)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (1, test_image_path, '123 Test St', 'test_user', 100.0, '[]'))
+        conn.commit()
+        conn.close()
+
+        # Simulate logged-in user
+        with self.client.session_transaction() as sess:
+            sess['username'] = 'test_user'
+
+        # Send POST request to delete the listing
+        response = self.client.post('/delete_listing', data={'id': 1}, follow_redirects=True)
+
+        # Check that response is OK and includes success message
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Listing and image removed successfully!', response.data)
+
+        # Verify the listing is removed from the database
+        conn = get_db_connection()
+        deleted = conn.execute("SELECT * FROM user_uploads WHERE id = ?", (1,)).fetchone()
+        conn.close()
+        self.assertIsNone(deleted)
+
+        # Verify the image file was deleted
+        self.assertFalse(os.path.exists(test_image_path))
+
+
+
+#=====================CHECKOUT=====================================
+    def test_checkout_user_not_logged_in(self):
+        response = self.client.post('/checkout', data={
+            'start_date': '2025-05-01',
+            'end_date': '2025-05-05',
+            'image_id': 1
+        })
+        self.assertEqual(response.status_code, 302)  # Expecting redirect (login page)
+        self.assertEqual(response.headers['Location'], '/login')
+    
+
+
+#=====================Bookings=====================================
+    def test_cancel_booking(self):
+        # Set up: insert a user, a booking, and an image with datesBooked
+        username = 'testuser'
+        booking_id = 1  # Arbitrary booking ID for test
+        image_id = 999  # Arbitrary image ID
+        start_date = '2025-05-01'
+        end_date = '2025-05-05'
+       
+        # Existing dates booked for the image
+        initial_dates = json.dumps(['2025-04-28', '2025-04-29', '2025-04-30'])
+       
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+
+        # Cleanup any existing data for this image_id and booking_id
+        cursor.execute('DELETE FROM bookings WHERE id = ? AND username = ?', (booking_id, username))
+        cursor.execute('DELETE FROM user_uploads WHERE id = ?', (image_id,))
+        cursor.execute('DELETE FROM users WHERE username = ?', (username,))
+
+
+        # Insert the user into the users table (if not already exists)
+        cursor.execute('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)', (username, 'password123'))
+       
+        # Insert an image with existing datesBooked, a placeholder for image_path, address, and owner
+        image_path = 'path/to/image.jpg'  # Placeholder path for image
+        address = '123 Test Street, Test City, Test Country'  # Placeholder address for the image
+        owner = username  # Owner of the image (test user)
+        cursor.execute('INSERT INTO user_uploads (id, datesBooked, image_path, address, owner) VALUES (?, ?, ?, ?, ?)',
+                    (image_id, initial_dates, image_path, address, owner))
+
+
+        # Insert a booking into the bookings table for the test user
+        conn.execute('''INSERT INTO bookings (username, listing_id, start_date, end_date)
+                        VALUES (?, ?, ?, ?)''', (username, image_id, start_date, end_date))
+
+
+        # Commit changes to the database
+        conn.commit()
+        conn.close()
+
+
+        # Simulate login
+        with self.client.session_transaction() as session:
+            session['username'] = username
+
+
+        # Prepare form data for cancel booking
+        cancel_data = {
+            'booking_id': booking_id,
+            'listing_id': image_id,
+            'start_date': start_date,
+            'end_date': end_date
+        }
+
+
+        # Send POST request to cancel booking
+        response = self.client.post('/cancel_booking', data=cancel_data, follow_redirects=True)
+
+
+        # Confirm successful response
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Booking successfully cancelled', response.data)
+
+
+        # Check that the booking was deleted from the bookings table
+        conn = get_db_connection()
+        booking = conn.execute('SELECT * FROM bookings WHERE id = ? AND username = ?',
+                            (booking_id, username)).fetchone()
+        conn.close()
+        self.assertIsNone(booking)
+
+
+        # Check that the datesBooked were updated in the user_uploads table
+        conn = get_db_connection()
+        row = conn.execute('SELECT datesBooked FROM user_uploads WHERE id = ?', (image_id,)).fetchone()
+        conn.close()
+
+
+        # The cancelled dates (2025-05-01, 2025-05-05) should be removed
+        expected_dates = ['2025-04-28', '2025-04-29', '2025-04-30']
+        updated_dates = json.loads(row['datesBooked'])
+        self.assertEqual(sorted(updated_dates), sorted(expected_dates))
+
+    def test_view_bookings(self):
+            # Simulate a logged-in user by setting a session variable
+            with self.client.session_transaction() as session:
+                session['username'] = 'testuser'
+            response = self.client.get('/viewBooking')
+            self.assertEqual(response.status_code, 200)
+
 
     def test_uploaded_file(self):
         # Simulate a logged-in user by setting a session variable
@@ -387,30 +650,8 @@ class FlaskTestCase(unittest.TestCase):
         # Check if the status code is 200, meaning the file was found and served
         self.assertEqual(response.status_code, 200)
 
-#=====================CHECKOUT=====================================
-    def test_checkout_user_not_logged_in(self):
-        response = self.client.post('/checkout', data={
-            'start_date': '2025-05-01',
-            'end_date': '2025-05-05',
-            'image_id': 1
-        })
-        self.assertEqual(response.status_code, 302)  # Expecting redirect (login page)
-        self.assertEqual(response.headers['Location'], '/login')
-    
-    def test_checkout_user_logged_in(self):
-        # Simulate a logged-in user by setting a session variable
-        with self.client.session_transaction() as session:
-            session['username'] = 'testuser'  # Set the username in the session
-        
-        # Try to load the checkout page
-        response = self.client.get('/checkout')  # Use GET to load the page
-        
-        # Check if the response status is OK (200) or if the page loads correctly
-        self.assertEqual(response.status_code, 200)  # Expecting a successful page load
-        self.assertIn(b'Checkout', response.data)  # Check for a keyword from the page content (e.g., "Checkout")
 
-
-
+    #coverage run --omit='/usr/lib/python3/*' -m unittest discover
     # Additional tests can be added for POST requests, form handling, etc.
 
 if __name__ == "__main__":
