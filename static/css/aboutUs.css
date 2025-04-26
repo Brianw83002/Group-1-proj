@@ -4,8 +4,8 @@ body{
     background-image: url('../images/neighborhood.jpg');
     background-position: center;
     box-sizing: border-box;
-    border-right: 50px solid rgb(84, 84, 212);
-    border-left:  50px solid rgb(84, 84, 212);
+    border-right: 50px solid rgb(0, 74, 173);
+    border-left:  50px solid rgb(0, 74, 173);
     min-height: 100vw;
 }
 
