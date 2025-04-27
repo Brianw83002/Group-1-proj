@@ -80,4 +80,4 @@ to navigate interface.
     Description: Have helpful error messages
     Primary actor: Developer 1
 
-<img src="CaseDiagram.png" width="800" height="500">
+<img src="static/images/CaseDiagram.png" width="800" height="500">
