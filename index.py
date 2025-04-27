@@ -1,3 +1,18 @@
+#
+#
+#   This File is used to generate the html files of the project
+#       Functions that each html requires to function is also stored here.
+#       while having it all here may not be easy to maintain and reduces its readabliltiy
+#       it gets the job done.
+#
+#   The html pages that are generated can be found it "ROUTES/PAGES" section of the file
+#
+#   The Functions that the corresponding pages use can be found in the "FUNCTIONS" section
+#
+#
+
+
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 import sqlite3
 import os
@@ -90,8 +105,6 @@ def createAccount():
 
     # Render the createAccount page for GET requests
     return render_template('createAccount.html')
-
-
 
 
 # Route for the Search page
@@ -254,10 +267,13 @@ def viewBookings():
         })
     
     return render_template('viewBooking.html', bookings=processed_bookings)
+
+
 #======================END OF ROUTES/PAGES====================================================
 
 
 #======================FUNCTIONS====================================================
+
 # For serving uploaded files
 @app.route('/userUploads/<filename>')
 def uploaded_file(filename):
@@ -358,7 +374,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
+#mangages the Checkout on cartPage
 @app.route('/checkout', methods=['POST'])
 def checkout():
     if 'username' not in session:
@@ -429,7 +445,7 @@ def checkout():
 
     return redirect(url_for('cart'))
 
-
+#manages the cancel booking for viewBooking page
 @app.route('/cancel_booking', methods=['POST'])
 def cancel_booking():
     if 'username' not in session:

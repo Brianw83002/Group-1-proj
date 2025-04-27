@@ -7,6 +7,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 import json
 
+
 #===================How to run test_app.py==================================
 #       need to install coverage with pip install
 #       need to install pytest with pip install
@@ -668,8 +669,7 @@ class FlaskTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-    #coverage run --omit='/usr/lib/python3/*' -m unittest discover
-    # Additional tests can be added for POST requests, form handling, etc.
+    
 
 if __name__ == "__main__":
     unittest.main()

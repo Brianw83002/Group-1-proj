@@ -1,3 +1,20 @@
+#   
+#   File Purpose:
+#       The purpose of this file is to interact with users.db
+#           such as by Creating tables, adding colums, editing 
+#           tables and dropping them
+
+#   How To Use:
+#   In order to adjust the table, first add your SQL command to the 
+#       already existing commands. Running the File will update 
+#       users.db
+#   
+#   How To Run:
+#   The File can be run by entering in a terminal:
+#       python init_db.py   or    python3 init_db.py
+#
+#
+
 import sqlite3
 
 # Connect to SQLite database (it will create the database file if it doesn't exist)

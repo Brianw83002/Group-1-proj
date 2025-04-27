@@ -24,3 +24,12 @@ copy and paste into a browser
 to stop the process press ctrl+C 
 
 
+TO VIEW THE COVERAGE REPORT:
+    in the folder there is a html shortcut called 
+        "index.html - Shortcut"
+        
+    double clicking should open it in a browser.
+
+    if not, you can: right click it -> open with -> and choose a browser you have installed
+
+
