@@ -1,13 +1,3 @@
-import unittest
-import os
-from index import app, get_db_connection    # Assuming your Flask app is in a file called app.py
-from flask import jsonify, current_app
-import sqlite3
-from datetime import datetime
-from werkzeug.utils import secure_filename
-import json
-
-
 #===================How to run test_app.py==================================
 #       need to install coverage with pip install
 #       need to install pytest with pip install
@@ -24,6 +14,14 @@ import json
 #       This produces an html called index.html. 
 #           it can be ran in any browser
 
+import unittest
+import os
+from index import app, get_db_connection    # Assuming your Flask app is in a file called app.py
+from flask import jsonify, current_app
+import sqlite3
+from datetime import datetime
+from werkzeug.utils import secure_filename
+import json
 
 
 class FlaskTestCase(unittest.TestCase):

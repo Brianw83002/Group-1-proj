@@ -10,8 +10,10 @@
 #       users.db
 #   
 #   How To Run:
-#   The File can be run by entering in a terminal:
-#       python init_db.py   or    python3 init_db.py
+#       users.db should be updated and good to run(4/27/2025) thus no this file DOES NOT NEED TO BE RAN
+#       
+#       If changes are made the File can be run by entering in a terminal:
+#           python init_db.py   or    python3 init_db.py
 #
 #
 
