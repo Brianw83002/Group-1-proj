@@ -7,6 +7,23 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 import json
 
+#===================How to run test_app.py==================================
+#       need to install coverage with pip install
+#       need to install pytest with pip install
+#       
+#       in terminal enter 
+#           coverage run --omit='/usr/lib/python3/*' -m unittest discover
+#       
+#       to view report type
+#           coverage report
+#       
+#       to see in html type 
+#           coverage html
+
+#       This produces an html called index.html. 
+#           it can be ran in any browser
+
+
 
 class FlaskTestCase(unittest.TestCase):
 
