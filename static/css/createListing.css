@@ -3,8 +3,8 @@ body{
     padding: 0;
 
     box-sizing: border-box;
-    border-right: 50px solid rgb(0, 0, 158);
-    border-left:  50px solid rgb(0, 0, 158);
+    border-right: 50px solid rgb(0, 74, 173);
+    border-left:  50px solid rgb(0, 74, 173);
     min-height: 100vw;
 }
 
